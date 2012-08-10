@@ -8,7 +8,7 @@ BOTTOM = 3
 class HitHexagon( object ):
 		
 	def __init__(self, rect, multiplier):
-		self.relativeTop = -rect.height/2
+		self.relativeTop = -rect.height/2 + 0.5
 		self.relativeBottom = rect.height/2
 		self.relativeRight = (rect.width/2) * multiplier
 		self.relativeLeft = -(rect.width/2) * multiplier
@@ -24,10 +24,10 @@ class HitHexagon( object ):
 		left   = (int(round(midPos[0]) + self.relativeLeft), int(round(midPos[1])))
 		right  = (int(round(midPos[0]) + self.relativeRight),int(round(midPos[1])))
 
-		#print "top: " + repr(top)
-		#print "bottom: " + repr(bottom)
-		#print "left: " + repr(left)
-		#print "right: " + repr(right)
+		print "top: " + repr(top)
+		print "bottom: " + repr(bottom)
+		print "left: " + repr(left)
+		print "right: " + repr(right)
 		result = [False, False,  False,  False]
 		
 		#not hexagon yet more left and right
@@ -37,9 +37,8 @@ class HitHexagon( object ):
 		if(level.isPixelWall(right)): result[RIGHT] = True
 		if((not any(result)) or not Globals.DEBUG): return result
 #DEBUG WRITING
-		pygame.draw.rect(Globals.CANVAS, (255, 255, 255),
-				pygame.Rect(0,0,Globals.WIDTH,Globals.HEIGHT/8))
-		pygame.draw.rect(Globals.CANVAS, (255, 0, 0), rect)
+		#pygame.draw.rect(Globals.CANVAS, (255, 255, 255),
+		#pygame.draw.rect(Globals.CANVAS, (255, 0, 0), rect)
 
 		font = pygame.font.Font(None, 24)
 		text1 = font.render("colision (t:%s,b:%s,l:%s,r:%s)," %

@@ -1,5 +1,5 @@
 #!/usr/bin/python2.7
-import pygame, sys, Player, HitHexagon, Level, Globals, Tileset
+import pygame, sys, Player, HitHexagon, Level, Globals, Tileset, SpriteSheet
 from pygame.locals import *
 
 pygame.init()
@@ -7,16 +7,18 @@ pygame.init()
 tileset = Tileset.Tileset("tileset")
 
 def reactToCollision(sprite, collisions):
-	if(collisions[HitHexagon.LEFT] and collisions[HitHexagon.RIGHT]): sys.exit(0)
-	if(collisions[HitHexagon.TOP] and collisions[HitHexagon.BOTTOM]): sys.exit(0)
+	if(collisions[HitHexagon.LEFT] and collisions[HitHexagon.RIGHT]):
+		print "You got crushed by walls"
+	if(collisions[HitHexagon.TOP] and collisions[HitHexagon.BOTTOM]):
+		print "You got crushed by walls"
 	
 	if(collisions[HitHexagon.LEFT]):
 		sprite.velocity = (0,sprite.velocity[1])
-		sprite.addPos((0.1,0))
+		sprite.addPos((0.01,0))
 
 	if(collisions[HitHexagon.RIGHT]):
 		sprite.velocity = (0,sprite.velocity[1])
-		sprite.addPos((-0.1,0))
+		sprite.addPos((-0.01,0))
 
 	if(collisions[HitHexagon.TOP]):
 		sprite.velocity = (sprite.velocity[0],0)
@@ -38,7 +40,8 @@ SKY = (0x6d, 0xc2, 0xca)
 
 # draw on the surface object
 
-player = Player.Player("dude.png")
+spriteSheet = SpriteSheet.SpriteSheet("spriteSheet1.png")
+player = Player.Player(spriteSheet)
 player.setPos((64,16))
 
 sprites = []
@@ -53,7 +56,7 @@ def act( sprites, level ):
 
 def collisionHandler(sprites, level):
 	for sprite in sprites:
-		for i in range(100):#try a fixed amount of time to push the sprite
+		for i in range(200):#try a fixed amount of time to push the sprite
 			#out of walls
 			collisions = sprite.getCollisions(level)
 			if(any(collisions)):
@@ -74,16 +77,22 @@ def drawDebugText(player):
 	Globals.CANVAS.blit(text2, (20,40))
 
 def drawFrame(canvas, sprites, level):
-	Globals.CANVAS.fill(SKY)
+	frameCanvas = pygame.Surface((Globals.WIDTH*Globals.TILESIZE,
+		Globals.HEIGHT*Globals.TILESIZE))
+	frameCanvas.fill(SKY)
 
-	level.draw(Globals.CANVAS)
+	level.draw(frameCanvas)
 
 	for sprite in sprites:
-		sprite.draw(Globals.CANVAS)
+		sprite.draw(frameCanvas, level)
 	if(Globals.DEBUG):
 		drawDebugText(sprites[0])
 	
-frame = 0
+	scaledCanvas = pygame.transform.scale(frameCanvas,
+			(Globals.WIDTH*Globals.TILESIZE*Globals.SCREENMULTIPLIER,
+			Globals.HEIGHT*Globals.TILESIZE*Globals.SCREENMULTIPLIER))
+	canvas.blit(scaledCanvas, (0,0))
+	
 while True: # main game loop
 	for event in pygame.event.get():
 		if event.type == QUIT:
@@ -97,7 +106,6 @@ while True: # main game loop
 
 	pygame.display.update()
 	FPSCLOCK.tick(FPS)
-	frame +=1
+	Globals.FRAMECOUNT +=1
 	#print "END OF FRAME: ", frame
-pygame.display.update()
 

@@ -1,22 +1,28 @@
-import pygame, sys, HitHexagon, Level, Globals
+import pygame, sys, SpriteSheet, HitHexagon, Level, Globals, soundplay, math
+WALKANIMATION = 3
 class Player( object ):
-	def __init__(self, imgFile):
+	def __init__(self, spriteSheet):
 		self.controlAcc = 0.3
-		self.pos = (0,0)
-		self.velocity = (0,0)
-		self.maxVelocity = 7
+		self.pos = (0.0,0.0)
+		self.velocity = (0.0,0.0)
+		self.maxVelocity = 3
 		self.isVisible = False;
-		self.img = pygame.image.load(imgFile)
+		self.spriteSheet = spriteSheet
 		self.hitHexagon = HitHexagon.HitHexagon((pygame.Rect(self.pos,
-			(self.img.get_width(), self.img.get_height()))), 1)
-		self.state = 1
+			(self.spriteSheet.spriteWidth, self.spriteSheet.spriteHeight))),
+			0.6)
+		self.facing = SpriteSheet.FACE_RIGHT
 
 	"""Interface"""
 	def getPos( self ):
-		return self.pos
+		return (int(self.pos[0]), int(self.pos[1]))
+
 	def getMidPos( self ):
-		return (self.pos[0] + self.img.get_width()/2, self.pos[1] +
-				self.img.get_height()/2)
+		print "pos", self.getPos()
+		print "mid", (self.getPos()[0] + float(self.spriteSheet.spriteWidth)/2-1,
+				self.getPos()[1] + float(self.spriteSheet.spriteHeight)/2-1)
+		return (self.getPos()[0] + float(self.spriteSheet.spriteWidth)/2-1,
+				self.getPos()[1] + float(self.spriteSheet.spriteHeight)/2-1)
 
 	def setPos( self, pos):
 		self.pos = (int(round(pos[0])), int(round(pos[1])))
@@ -62,29 +68,52 @@ class Player( object ):
 	def setVisibility( self, newVisibility ):
 		self.isVisible = newVisibility
 
-	def draw( self, canvasSurface ):
-		canvasSurface.blit(self.img, self.pos)
-		self.hitHexagon.draw(self.getMidPos(), canvasSurface)
+	def draw( self, canvasSurface, level ):
+		action = SpriteSheet.STAND
+		print Globals.FRAMECOUNT
+		if(math.fabs(self.velocity[0]) > 1):
+			if((Globals.FRAMECOUNT % (2*WALKANIMATION)) < WALKANIMATION):
+				action = SpriteSheet.RUN_1
+			else: action = SpriteSheet.RUN_0
+		if(self.isInAir(level)): action = SpriteSheet.RUN_0
+		self.spriteSheet.draw(canvasSurface, self.pos, (self.facing,
+			action))
+		if(Globals.DEBUG):
+			self.hitHexagon.draw(self.getMidPos(), canvasSurface)
 
 	def friction( self ):
-		cutOffV = self.controlAcc*3.0
+		cutOffV = self.controlAcc*0.6
 		if(self.velocity[0] <=  -cutOffV): self.addVelocity((cutOffV,0))
 		elif(self.velocity[0] >= cutOffV): self.addVelocity((-cutOffV,0))
 		else: self.setVelocity((0,self.velocity[1]))
 
+	def jump(self):
+		self.velocity= (self.velocity[0],-14)
+		Globals.SOUNDPLAYER.playSound("jump.wav")
+		
+
 	def act( self, level):
 		self.addPos(self.velocity)
 
+		controlMultiplier = 0.4
 		key=pygame.key.get_pressed()  #checking pressed keys
-		if key[pygame.K_LEFT]: self.addVelocity((-self.controlAcc,0))
-		if key[pygame.K_RIGHT]:self.addVelocity((self.controlAcc,0))
-		if (key[pygame.K_SPACE] and (not self.isInAir(level))): self.addVelocity((0,
-			-self.controlAcc*40))
-		#if key[pygame.K_DOWN]: self.addVelocity((0,  self.controlAcc))
+		if key[pygame.K_LSHIFT or pygame.K_RSHIFT]:
+			controlMultiplier = 1.0
+		if key[pygame.K_LEFT]:
+			self.facing = SpriteSheet.FACE_LEFT
+			self.addVelocity((-self.controlAcc*controlMultiplier,0))
+		if key[pygame.K_RIGHT]:
+			self.facing = SpriteSheet.FACE_RIGHT
+			self.addVelocity((self.controlAcc*controlMultiplier,0))
+		if (key[pygame.K_SPACE] and (not self.isInAir(level))): 	
+			self.jump()
+			#if key[pygame.K_DOWN]: self.addVelocity((0,  self.controlAcc))
 		if (not (key[pygame.K_LEFT] or key[pygame.K_RIGHT])): self.friction()
 
 		if(pygame.mouse.get_pressed()[0]):
-			self.setPos(pygame.mouse.get_pos())
+			mousePos = pygame.mouse.get_pos()
+			self.setPos((mousePos[0]/Globals.SCREENMULTIPLIER,
+					mousePos[1]/Globals.SCREENMULTIPLIER))
 	
 	def getCollisions(self, level):
 		return self.hitHexagon.getCollisions(self.getMidPos(), level)

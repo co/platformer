@@ -1,7 +1,12 @@
-import pygame
-WIDTH = 800
-HEIGHT = 640
-CANVAS = pygame.display.set_mode((WIDTH, HEIGHT))
-GRAVITY = 0.5
+import pygame, SoundPlayer
+WIDTH = 16
+HEIGHT = 12
+GRAVITY = 0.2
 DEBUG = False
 TILESIZE = 16
+SCREENMULTIPLIER = 2
+CANVAS = pygame.display.set_mode((WIDTH*TILESIZE*SCREENMULTIPLIER,
+	HEIGHT*TILESIZE*SCREENMULTIPLIER))
+FRAMECOUNT = 0
+
+SOUNDPLAYER = SoundPlayer.SoundPlayer()

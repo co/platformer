@@ -19,7 +19,7 @@ class Tileset( object ):
 		img = pygame.image.load(collisionMaskFileName)
 		#pixelMatrix = pygame.PixelArray(img)
 		collisionMask = [[0 for i in range(16)] for j in range(16)]
-		print "testo: ", tileChoiceRect.left
+		#print "testo: ", tileChoiceRect.left
 		offsetX = tileChoiceRect.left
 		offsetY = tileChoiceRect.top
 		for y in range(Globals.TILESIZE):
@@ -29,7 +29,7 @@ class Tileset( object ):
 					collisionMask[y][x] = 1
 				else:
 					collisionMask[y][x] = 0
-		print collisionMask
+		#print collisionMask
 		return collisionMask
 
 	def getTile( self, index ):
