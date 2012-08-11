@@ -1,5 +1,5 @@
 import pygame, sys, SpriteSheet, HitHexagon, Level, Globals, soundplay, math
-WALKANIMATION = 3
+WALKANIMATION = 7
 class Player( object ):
 	def __init__(self, spriteSheet):
 		self.controlAcc = 0.3
@@ -10,17 +10,18 @@ class Player( object ):
 		self.spriteSheet = spriteSheet
 		self.hitHexagon = HitHexagon.HitHexagon((pygame.Rect(self.pos,
 			(self.spriteSheet.spriteWidth, self.spriteSheet.spriteHeight))),
-			0.6)
+			0.5)
 		self.facing = SpriteSheet.FACE_RIGHT
+		self.game = None
 
 	"""Interface"""
 	def getPos( self ):
 		return (int(self.pos[0]), int(self.pos[1]))
 
+	def setHPBar( self, bar ):
+		self.HPbar = bar
+
 	def getMidPos( self ):
-		print "pos", self.getPos()
-		print "mid", (self.getPos()[0] + float(self.spriteSheet.spriteWidth)/2-1,
-				self.getPos()[1] + float(self.spriteSheet.spriteHeight)/2-1)
 		return (self.getPos()[0] + float(self.spriteSheet.spriteWidth)/2-1,
 				self.getPos()[1] + float(self.spriteSheet.spriteHeight)/2-1)
 
@@ -31,8 +32,8 @@ class Player( object ):
 		return (int(round(self.pos[0])), int(round(self.pos[1])))
 
 	def addPos( self, pos):
-		x = self.pos[0] + pos[0]
-		y = self.pos[1] + pos[1]
+		x = max(self.pos[0] + pos[0],0)
+		y = max(self.pos[1] + pos[1],0)
 		self.pos = (x,y)
 
 	def isInAir( self, level):
@@ -69,13 +70,13 @@ class Player( object ):
 		self.isVisible = newVisibility
 
 	def draw( self, canvasSurface, level ):
+		print self.pos
 		action = SpriteSheet.STAND
-		print Globals.FRAMECOUNT
 		if(math.fabs(self.velocity[0]) > 1):
 			if((Globals.FRAMECOUNT % (2*WALKANIMATION)) < WALKANIMATION):
 				action = SpriteSheet.RUN_1
 			else: action = SpriteSheet.RUN_0
-		if(self.isInAir(level)): action = SpriteSheet.RUN_0
+		if(self.isInAir(level)): action = SpriteSheet.JUMP
 		self.spriteSheet.draw(canvasSurface, self.pos, (self.facing,
 			action))
 		if(Globals.DEBUG):

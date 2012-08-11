@@ -24,10 +24,10 @@ class HitHexagon( object ):
 		left   = (int(round(midPos[0]) + self.relativeLeft), int(round(midPos[1])))
 		right  = (int(round(midPos[0]) + self.relativeRight),int(round(midPos[1])))
 
-		print "top: " + repr(top)
-		print "bottom: " + repr(bottom)
-		print "left: " + repr(left)
-		print "right: " + repr(right)
+		#print "top: " + repr(top)
+		#print "bottom: " + repr(bottom)
+		#print "left: " + repr(left)
+		#print "right: " + repr(right)
 		result = [False, False,  False,  False]
 		
 		#not hexagon yet more left and right

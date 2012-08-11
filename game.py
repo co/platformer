@@ -1,5 +1,6 @@
 #!/usr/bin/python2.7
 import pygame, sys, Player, HitHexagon, Level, Globals, Tileset, SpriteSheet
+import Camera, Bar, PowerUp
 from pygame.locals import *
 
 pygame.init()
@@ -18,7 +19,7 @@ def reactToCollision(sprite, collisions):
 
 	if(collisions[HitHexagon.RIGHT]):
 		sprite.velocity = (0,sprite.velocity[1])
-		sprite.addPos((-0.01,0))
+		sprite.addPos((-1,0))
 
 	if(collisions[HitHexagon.TOP]):
 		sprite.velocity = (sprite.velocity[0],0)
@@ -42,10 +43,17 @@ SKY = (0x6d, 0xc2, 0xca)
 
 spriteSheet = SpriteSheet.SpriteSheet("spriteSheet1.png")
 player = Player.Player(spriteSheet)
+HPbar = Bar.Bar("hpbar.png", (8,8), 20)
 player.setPos((64,16))
 
 sprites = []
 sprites.append(player)
+
+heart = PowerUp.PowerUp("heart.png", (128,128), (9,8))
+powerUps = []
+powerUps.append(heart)
+
+camera = Camera.Camera(player.pos, Globals.PIXELSIZE)
 
 level = Level.Level(tileset)
 level.loadFile("world1.map")
@@ -76,33 +84,44 @@ def drawDebugText(player):
 	Globals.CANVAS.blit(text1, (20,20))
 	Globals.CANVAS.blit(text2, (20,40))
 
-def drawFrame(canvas, sprites, level):
-	frameCanvas = pygame.Surface((Globals.WIDTH*Globals.TILESIZE,
-		Globals.HEIGHT*Globals.TILESIZE))
-	frameCanvas.fill(SKY)
+def drawFrame(canvas, camera, sprites, level):
+	levelCanvas = pygame.Surface((1000, 1000))
+	levelCanvas.fill(SKY)
 
-	level.draw(frameCanvas)
+	level.draw(levelCanvas)
+
+	for power in powerUps:
+		power.draw(levelCanvas)
 
 	for sprite in sprites:
-		sprite.draw(frameCanvas, level)
+		sprite.draw(levelCanvas, level)
 	if(Globals.DEBUG):
 		drawDebugText(sprites[0])
+	frameCanvas = pygame.Surface(Globals.PIXELSIZE)
+	frameCanvas.blit(levelCanvas, (0,0), camera.cameraRect)
+
+	HPbar.draw(frameCanvas)
 	
-	scaledCanvas = pygame.transform.scale(frameCanvas,
-			(Globals.WIDTH*Globals.TILESIZE*Globals.SCREENMULTIPLIER,
-			Globals.HEIGHT*Globals.TILESIZE*Globals.SCREENMULTIPLIER))
+	scaledCanvas = pygame.transform.scale(frameCanvas, Globals.SCREENSIZE)
 	canvas.blit(scaledCanvas, (0,0))
 	
+
+def updatePowerups(powerUps):
+	for power in powerUps:
+		power.update()
+
 while True: # main game loop
 	for event in pygame.event.get():
 		if event.type == QUIT:
 			pygame.quit()
 			sys.exit()
 
-	drawFrame(Globals.CANVAS, sprites, level)
+	camera.updateCameraPos(player.getMidPos())
+	drawFrame(Globals.CANVAS, camera, sprites, level)
 	addGravity(sprites, level)
 	collisionHandler(sprites, level)
 	act( sprites, level )
+	updatePowerups(powerUps)
 
 	pygame.display.update()
 	FPSCLOCK.tick(FPS)
