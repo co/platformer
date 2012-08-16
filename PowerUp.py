@@ -1,4 +1,4 @@
-import pygame
+import pygame, math
 
 class PowerUp( object ):
 
@@ -11,9 +11,16 @@ class PowerUp( object ):
 		self.pos = pos
 		self.animationDelay = animationDelay
 		self.game = game
+		self.toBeRemoved = False
 
 	def update(self):
 		self.tickAnimation()
+		player = self.game.player
+		print self.img.get_rect()
+		if player.hitHexagon.isCollidingWithRect(player.getMidPos(),
+				pygame.Rect(self.pos, self.frameSize)):
+			self.game.player.heal(100)
+			self.toBeRemoved = True
 
 	def tickAnimation(self):
 		self.animationTick += 1

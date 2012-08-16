@@ -1,4 +1,4 @@
-import pygame, Globals, HitHexagon
+import pygame, Globals, HitHexagon, HurtBoxHandler
 class Entity(object):
 	def __init__(self):
 		self.pos = (0.0,0.0)
@@ -9,10 +9,9 @@ class Entity(object):
 			(Globals.TILESIZE, Globals.TILESIZE))),
 			0.5)
 		self.game = None
-
-
-	def setPos( self, pos):
-		self.pos = (int(round(pos[0])), int(round(pos[1])))
+		self.maxHP = 30
+		self.hp = self.maxHP
+		self.alignment = HurtBoxHandler.ALIGNMENT_ENEMY
 
 	def getMidPos( self ):
 		return (self.pos[0] + float(self.spriteSheet.spriteWidth)/2-1,
@@ -55,3 +54,8 @@ class Entity(object):
 
 	def getCollisions(self, level):
 		return self.hitHexagon.getCollisions(self.getMidPos(), level)
+
+	def hurt(self, damage):
+		self.hp = max(self.hp - damage, 0)
+	def heal(self, heal):
+		self.hp = min(self.hp + heal, self.maxHP)

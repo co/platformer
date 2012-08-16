@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 import pygame, sys, Player, HitHexagon, Level, Globals, Tileset, SpriteSheet
-import Camera, Bar, PowerUp
+import Camera, Bar, PowerUp, HurtBoxHandler
 from pygame.locals import *
 
 class Game( object ):
@@ -14,8 +14,7 @@ class Game( object ):
 		self.canvas = canvas
 		self.player = player
 		self.guiFeatures = []
-		self.guiFeatures.append(Bar.Bar("hpbar.png", (8,8), 20))
-
+		self.hurtBoxHandler = HurtBoxHandler.HurtBoxHandler()
 
 	def reactToCollision(self, sprite, collisions):
 		if(collisions[HitHexagon.LEFT] and collisions[HitHexagon.RIGHT]):
@@ -84,14 +83,19 @@ class Game( object ):
 		frameCanvas.blit(levelCanvas, (0,0), self.camera.cameraRect)
 
 		for guiElement in self.guiFeatures:
-			guiElement.draw
+			guiElement.draw(frameCanvas)
 		
 		scaledCanvas = pygame.transform.scale(frameCanvas, Globals.SCREENSIZE)
 		canvas.blit(scaledCanvas, (0,0))
 
 	def updatePowerups(self):
+		self.powerUps = [p for p in self.powerUps if not p.toBeRemoved]
 		for power in self.powerUps:
 			power.update()
+
+	def updateHurtBoxes(self):
+		for sprite in self.sprites:
+			self.hurtBoxHandler.checkAndHurt(sprite)
 
 	def start(self):
 		self.player.game = self
@@ -100,6 +104,9 @@ class Game( object ):
 				if event.type == QUIT:
 					pygame.quit()
 					sys.exit()
+			if(self.player.hp == 0):
+				self.winning = False
+				break
 
 			self.camera.updateCameraPos(self.player.getMidPos())
 			self.addGravity()
@@ -107,6 +114,7 @@ class Game( object ):
 			self.act()
 			self.updatePowerups()
 			self.drawFrame(self.canvas)
+			self.updateHurtBoxes()
 
 			pygame.display.update()
 			Globals.FPSCLOCK.tick(Globals.FPS)

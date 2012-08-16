@@ -5,15 +5,6 @@ SPRITESHIGH = 10
 FACING = 0
 ACTION = 1
 
-FACE_RIGHT = 0
-FACE_LEFT =  1
-
-STAND= 0
-RUN_0 = 1
-RUN_1 = 2
-JUMP = 3
-DEAD = 4
-
 class SpriteSheet:
 	def __init__(self, imgFileName):
 		self.img = pygame.image.load(imgFileName)

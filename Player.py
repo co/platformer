@@ -1,5 +1,17 @@
-import pygame, sys, SpriteSheet, HitHexagon, Level, Globals, soundplay, math, Entity
+import pygame, sys, SpriteSheet, HitHexagon, Level, Globals, soundplay, math
+import Entity, Bar, HurtBoxHandler
+
 WALKANIMATION = 7
+
+FACE_RIGHT = 0
+FACE_LEFT =  1
+
+STAND= 0
+RUN_0 = 1
+RUN_1 = 2
+JUMP = 3
+DEAD = 4
+
 class Player(Entity.Entity):
 	def __init__(self, spriteSheet):
 		super(Player, self).__init__()
@@ -8,19 +20,17 @@ class Player(Entity.Entity):
 		self.hitHexagon = HitHexagon.HitHexagon((pygame.Rect(self.pos,
 			(self.spriteSheet.spriteWidth, self.spriteSheet.spriteHeight))),
 			0.5)
-		self.facing = SpriteSheet.FACE_RIGHT
-
-	def setHPBar( self, bar ):
-		self.HPbar = bar
+		self.facing = FACE_RIGHT
+		self.HPbar = Bar.Bar("hpbar.png", (8,8))
+		self.alignment = HurtBoxHandler.ALIGNMENT_PLAYER
 
 	def draw( self, canvasSurface, level ):
-		print self.pos
-		action = SpriteSheet.STAND
+		action = STAND
 		if(math.fabs(self.velocity[0]) > 1):
 			if((Globals.FRAMECOUNT % (2*WALKANIMATION)) < WALKANIMATION):
-				action = SpriteSheet.RUN_1
-			else: action = SpriteSheet.RUN_0
-		if(self.isInAir(level)): action = SpriteSheet.JUMP
+				action = RUN_1
+			else: action = RUN_0
+		if(self.isInAir(level)): action = JUMP
 		self.spriteSheet.draw(canvasSurface, self.pos, (self.facing,
 			action))
 		if(Globals.DEBUG):
@@ -37,18 +47,23 @@ class Player(Entity.Entity):
 		Globals.SOUNDPLAYER.playSound("jump.wav")
 		
 
-	def act( self, level):
+	def updateHPBar(self):
+		self.HPbar.length = self.maxHP
+		self.HPbar.value = self.hp
+
+	def act(self, level):
 		self.addPos(self.velocity)
+		self.updateHPBar()
 
 		controlMultiplier = 0.4
 		key=pygame.key.get_pressed()  #checking pressed keys
 		if key[pygame.K_LSHIFT or pygame.K_RSHIFT]:
 			controlMultiplier = 1.0
 		if key[pygame.K_LEFT]:
-			self.facing = SpriteSheet.FACE_LEFT
+			self.facing = FACE_LEFT
 			self.addVelocity((-self.controlAcc*controlMultiplier,0))
 		if key[pygame.K_RIGHT]:
-			self.facing = SpriteSheet.FACE_RIGHT
+			self.facing = FACE_RIGHT
 			self.addVelocity((self.controlAcc*controlMultiplier,0))
 		if (key[pygame.K_SPACE] and (not self.isInAir(level))): 	
 			self.jump()
@@ -57,8 +72,8 @@ class Player(Entity.Entity):
 
 		if(pygame.mouse.get_pressed()[0]):
 			mousePos = pygame.mouse.get_pos()
-			self.setPos((mousePos[0]/Globals.SCREENMULTIPLIER,
-					mousePos[1]/Globals.SCREENMULTIPLIER))
+			self.pos = (mousePos[0]/Globals.SCREENMULTIPLIER,
+					mousePos[1]/Globals.SCREENMULTIPLIER)
 	
 	def getCollisions(self, level):
 		return self.hitHexagon.getCollisions(self.getMidPos(), level)
