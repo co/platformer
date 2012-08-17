@@ -13,7 +13,7 @@ class Attack( SimpleSprite.SimpleSprite ):
 			if(self.lastHurtBox.numberOfHurtFrames > 0):
 				self.toBeRemoved = True
 				return
-		self.tickAnimation()
+		self.tick()
 		self.pos = VectorMath.add(self.pos, self.velocity)
 		box = pygame.Rect(self.pos, self.frameSize)
 		hurtBox = HurtBox.HurtBox(box, 2, 1)

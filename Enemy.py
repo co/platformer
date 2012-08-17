@@ -1,7 +1,7 @@
 import pygame, sys, SpriteSheet, HitHexagon, Level, Globals, soundplay, math
 import Entity, HurtBox, HurtBoxHandler, random, VectorMath, Attack
 
-SHOTCOOLDOWN = 30
+SHOTCOOLDOWN = 40
 
 class Enemy(Entity.Entity):
 	def __init__(self, spriteSheet, game):
@@ -31,9 +31,10 @@ class Enemy(Entity.Entity):
 	def attack(self):
 		distance = self.distanceToPoint(self.game.player.getMidPos())
 		shotInitPos = VectorMath.add(self.pos, (6,3))
-		if(self.shotCoolDown == 0 and distance < 80):
+		if(self.shotCoolDown == 0):
 			self.game.simpleSprites.append(self.generateProjectile(shotInitPos))
 			self.shotCoolDown = SHOTCOOLDOWN
+			Globals.SOUNDPLAYER.playSound("shoot.wav")
 		if(self.shotCoolDown >= 1):
 			self.shotCoolDown -=1
 
@@ -44,9 +45,11 @@ class Enemy(Entity.Entity):
 		distance = self.distanceToPoint(self.game.player.getMidPos())
 		if(distance > 256):
 			speed = 0
-		elif(distance > 64):
+		elif(distance > 80):
+			self.attack()
 			speed = 1
-		elif(distance > 48):
+		elif(distance > 64):
+			self.attack()
 			speed = 0
 			if(random.randrange(10) == 0):
 				self.moveRandom()
@@ -57,7 +60,6 @@ class Enemy(Entity.Entity):
 
 		self.move(speed)
 
-		self.attack()
 
 	def moveRandom(self):
 		UP = 0

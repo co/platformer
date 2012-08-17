@@ -10,7 +10,10 @@ STAND= 0
 RUN_0 = 1
 RUN_1 = 2
 JUMP = 3
-DEAD = 4
+HURT = 4
+DEAD = 5
+
+HURTTIMER = 100
 
 class Player(Entity.Entity):
 	def __init__(self, spriteSheet):
@@ -23,14 +26,21 @@ class Player(Entity.Entity):
 		self.facing = FACE_RIGHT
 		self.HPbar = Bar.Bar("hpbar.png", (8,8))
 		self.alignment = HurtBoxHandler.ALIGNMENT_PLAYER
+		self.hurtTimer = 0
 
 	def draw( self, canvasSurface, level ):
+		if( self.hurtTimer % 8 > 4 ):
+			return
 		action = STAND
 		if(math.fabs(self.velocity[0]) > 1):
 			if((Globals.FRAMECOUNT % (2*WALKANIMATION)) < WALKANIMATION):
 				action = RUN_1
 			else: action = RUN_0
-		if(self.isInAir(level)): action = JUMP
+		if(self.isInAir(level)):
+			action = JUMP
+		if(self.hurtTimer > HURTTIMER -30 and math.fabs(self.velocity[0]) < 2):
+			action = HURT
+
 		self.spriteSheet.draw(canvasSurface, self.pos, (self.facing,
 			action))
 		if(Globals.DEBUG):
@@ -65,7 +75,7 @@ class Player(Entity.Entity):
 		if key[pygame.K_RIGHT]:
 			self.facing = FACE_RIGHT
 			self.addVelocity((self.controlAcc*controlMultiplier,0))
-		if (key[pygame.K_SPACE] and (not self.isInAir(level))): 	
+		if (key[pygame.K_SPACE] and (not self.isInAir(level))):
 			self.jump()
 			#if key[pygame.K_DOWN]: self.addVelocity((0,  self.controlAcc))
 		if (not (key[pygame.K_LEFT] or key[pygame.K_RIGHT])): self.friction()
@@ -74,6 +84,18 @@ class Player(Entity.Entity):
 			mousePos = pygame.mouse.get_pos()
 			self.pos = (mousePos[0]/Globals.SCREENMULTIPLIER,
 					mousePos[1]/Globals.SCREENMULTIPLIER)
+
+		print self.hurtTimer
+		if(self.hurtTimer > 0): self.hurtTimer -= 1
 	
 	def getCollisions(self, level):
 		return self.hitHexagon.getCollisions(self.getMidPos(), level)
+
+	def hurt(self, damage):
+		if( self.hurtTimer == 0):
+			self.hp = max(self.hp - damage, 0)
+			if(not self.isInAir(self.game.level)):
+				self.velocity = (0,-2)
+			else:
+				self.velocity = (0,self.velocity[1])
+			self.hurtTimer = HURTTIMER

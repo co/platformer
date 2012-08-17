@@ -12,7 +12,7 @@ class SimpleSprite( object ):
 		self.game = game
 		self.toBeRemoved = False
 
-	def tickAnimation(self):
+	def tick(self):
 		self.animationTick += 1
 		if(self.animationTick >= self.animationDelay):
 			self.currentFrame = (self.currentFrame + 1) % self.numberOfFrames

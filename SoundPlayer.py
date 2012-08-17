@@ -4,8 +4,6 @@ class SoundThread( threading.Thread ):
 	def __init__(self):
 		self.nextSound = None
 		super(SoundThread, self).__init__()
-	
-
 
 	def run(self):
 		while True:
@@ -13,9 +11,6 @@ class SoundThread( threading.Thread ):
 				time.sleep(0) #yield
 			soundplay.playsound(self.nextSound)
 			self.nextSound = None
-
-
-
 
 class SoundPlayer( object ):
 	def __init__(self):
@@ -25,4 +20,3 @@ class SoundPlayer( object ):
 
 	def playSound(self, soundFile):
 		self.soundThread.nextSound = soundFile
-

@@ -57,5 +57,6 @@ class Entity(object):
 
 	def hurt(self, damage):
 		self.hp = max(self.hp - damage, 0)
+
 	def heal(self, heal):
 		self.hp = min(self.hp + heal, self.maxHP)

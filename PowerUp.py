@@ -6,7 +6,7 @@ class PowerUp( SimpleSprite.SimpleSprite ):
 		super(PowerUp, self).__init__( imgFileName, game, pos, frameSize, animationDelay)
 		
 	def update(self):
-		self.tickAnimation()
+		self.tick()
 		playerPos = self.game.player.getMidPos()
 		hitBox = pygame.Rect(self.pos, self.frameSize)
 		if self.game.player.hitHexagon.isCollidingWithRect(playerPos, hitBox):
