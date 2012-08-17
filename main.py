@@ -18,8 +18,8 @@ def loadLevelOne():
 		player = Player.Player(spriteSheet)
 		player.pos = (64,16)
 
-		sprites = []
-		sprites.append(player)
+		entities = []
+		entities.append(player)
 
 		camera = Camera.Camera(player.pos, Globals.PIXELSIZE)
 
@@ -29,11 +29,11 @@ def loadLevelOne():
 		ghostSS = SpriteSheet.SpriteSheet("blackGhost.png")
 		blackGhost = Enemy.Enemy(ghostSS, game)
 		blackGhost.pos = (5,5)
-		game.sprites.append(blackGhost)
+		game.entities.append(blackGhost)
 
 #PowerUps
 		heart = PowerUp.PowerUp("heart.png", game, (128,128), (9,8))
-		game.powerUps.append(heart)
+		game.simpleSprites.append(heart)
 
 		game.start()
 

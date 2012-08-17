@@ -1,15 +1,15 @@
 #!/usr/bin/python2.7
 import pygame, sys, Player, HitHexagon, Level, Globals, Tileset, SpriteSheet
-import Camera, Bar, PowerUp, HurtBoxHandler
+import Camera, Bar, PowerUp, HurtBoxHandler, Attack
 from pygame.locals import *
 
 class Game( object ):
 
 	def __init__( self, level, player, camera, canvas):
 		self.level = level
-		self.sprites = []
-		self.powerUps = []
-		self.sprites.append(player)
+		self.entities = []
+		self.simpleSprites = []
+		self.entities.append(player)
 		self.camera = camera
 		self.canvas = canvas
 		self.player = player
@@ -41,23 +41,23 @@ class Game( object ):
 # draw on the surface object
 
 	def act(self):
-		for sprite in self.sprites:
-			sprite.act(self.level)
+		for entity in self.entities:
+			entity.act(self.level)
 
 	def collisionHandler(self):
-		for sprite in self.sprites:
-			for i in range(200):#try a fixed amount of time to push the sprite
+		for entity in self.entities:
+			for i in range(200):#try a fixed amount of time to push the entity
 				#out of walls
-				collisions = sprite.getCollisions(self.level)
+				collisions = entity.getCollisions(self.level)
 				if(any(collisions)):
-					self.reactToCollision(sprite, collisions)
+					self.reactToCollision(entity, collisions)
 				else:
 					break
 
 	def addGravity(self):
-		for sprite in self.sprites:
-			if(sprite.isInAir(self.level)):
-				sprite.addVelocity((0,Globals.GRAVITY))
+		for entity in self.entities:
+			if(entity.isInAir(self.level)):
+				entity.addVelocity((0,Globals.GRAVITY))
 
 	def drawDebugText(self, canvas):
 		font = pygame.font.Font(None, 24)
@@ -72,13 +72,15 @@ class Game( object ):
 
 		self.level.draw(levelCanvas)
 
-		for power in self.powerUps:
-			power.draw(levelCanvas)
 
-		for sprite in self.sprites:
-			sprite.draw(levelCanvas, self.level)
+		for entity in self.entities:
+			entity.draw(levelCanvas, self.level)
+
+		for sprite in self.simpleSprites:
+			sprite.draw(levelCanvas)
+
 		if(Globals.DEBUG):
-			drawDebugText(self.sprites[0])
+			self.drawDebugText(self.entities[0])
 		frameCanvas = pygame.Surface(Globals.PIXELSIZE)
 		frameCanvas.blit(levelCanvas, (0,0), self.camera.cameraRect)
 
@@ -88,14 +90,14 @@ class Game( object ):
 		scaledCanvas = pygame.transform.scale(frameCanvas, Globals.SCREENSIZE)
 		canvas.blit(scaledCanvas, (0,0))
 
-	def updatePowerups(self):
-		self.powerUps = [p for p in self.powerUps if not p.toBeRemoved]
-		for power in self.powerUps:
-			power.update()
+	def updateSimpleSprites(self):
+		self.simpleSprites = [s for s in self.simpleSprites if not s.toBeRemoved]
+		for sprite in self.simpleSprites:
+			sprite.update()
 
 	def updateHurtBoxes(self):
-		for sprite in self.sprites:
-			self.hurtBoxHandler.checkAndHurt(sprite)
+		for entity in self.entities:
+			self.hurtBoxHandler.checkAndHurt(entity)
 
 	def start(self):
 		self.player.game = self
@@ -112,7 +114,7 @@ class Game( object ):
 			self.addGravity()
 			self.collisionHandler()
 			self.act()
-			self.updatePowerups()
+			self.updateSimpleSprites()
 			self.drawFrame(self.canvas)
 			self.updateHurtBoxes()
 

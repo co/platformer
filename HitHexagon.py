@@ -67,9 +67,6 @@ class HitHexagon( object ):
 		pygame.draw.line(canvasSurface, (0, 255, 255), points[LEFT], points[RIGHT])
 
 	def isCollidingWithRect( self, midPos, rect ):
-		points = self.getPoints(midPos)
-		for point in points:
-			if(rect.collidepoint(point)):
-				return True
-		return False
+		thisRect = self.getRect(midPos)
+		return thisRect.colliderect(rect)
 

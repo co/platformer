@@ -10,6 +10,8 @@ class Level( object ):
 	def __init__( self, tileset):
 		self.level = [[]]
 		self.tileset = tileset
+		self.width= 1
+		self.height= 1
 
 	
 	def loadFile( self, fileName ):
@@ -42,10 +44,14 @@ class Level( object ):
 				self.level[x][y] = tileType
 				x +=1
 			y +=1
+		self.width = tilesWide
+		self.height = tilesHigh
 
 	def isPixelWall( self, point ):
 		x = point[0]/Globals.TILESIZE
 		y = point[1]/Globals.TILESIZE
+		if(x >= self.width or y >= self.height):
+			return True
 		if(Globals.DEBUG):
 			pygame.draw.rect(Globals.CANVAS, (255, 0, 255),
 				pygame.Rect((x*Globals.TILESIZE, y*Globals.TILESIZE),
