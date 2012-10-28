@@ -60,3 +60,30 @@ class Entity(object):
 
 	def heal(self, heal):
 		self.hp = min(self.hp + heal, self.maxHP)
+	
+	def reactToCollision(self, collisions):
+		self.checkAndCrush(collisions)
+		self.pushOutOfWalls(collisions)
+
+	def checkAndCrush(self, collisions):
+		if(collisions[HitHexagon.LEFT] and collisions[HitHexagon.RIGHT]):
+			print "You got crushed by walls"
+		if(collisions[HitHexagon.TOP] and collisions[HitHexagon.BOTTOM]):
+			print "You got crushed by walls"
+
+	def pushOutOfWalls(self, collisions):
+		if(collisions[HitHexagon.LEFT]):
+			self.velocity = (0,self.velocity[1])
+			self.addPos((0.5,0))
+
+		if(collisions[HitHexagon.RIGHT]):
+			self.velocity = (0,self.velocity[1])
+			self.addPos((-0.5,0))
+
+		if(collisions[HitHexagon.TOP]):
+			self.velocity = (self.velocity[0],0)
+			self.addPos((0,0.5))
+
+		if(collisions[HitHexagon.BOTTOM]):
+			self.velocity = (self.velocity[0],0)
+			self.addPos((0,-0.5))

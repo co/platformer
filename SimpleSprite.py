@@ -11,12 +11,18 @@ class SimpleSprite( object ):
 		self.animationDelay = animationDelay
 		self.game = game
 		self.toBeRemoved = False
+		self.framesToLive = -1
 
 	def tick(self):
 		self.animationTick += 1
 		if(self.animationTick >= self.animationDelay):
 			self.currentFrame = (self.currentFrame + 1) % self.numberOfFrames
 			self.animationTick = 0
+		if(not self.framesToLive < 0):
+			if(self.framesToLive == 0):
+				self.toBeRemoved = True
+			else:
+				self.framesToLive -=1
 
 	def draw(self, canvasSurface):
 		currentFrameRect = pygame.Rect((self.currentFrame*self.frameSize[0],0), self.frameSize)

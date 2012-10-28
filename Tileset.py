@@ -20,6 +20,7 @@ class Tileset( object ):
 		#pixelMatrix = pygame.PixelArray(img)
 		collisionMask = [[0 for i in range(16)] for j in range(16)]
 		#print "testo: ", tileChoiceRect.left
+
 		offsetX = tileChoiceRect.left
 		offsetY = tileChoiceRect.top
 		for y in range(Globals.TILESIZE):

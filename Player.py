@@ -85,7 +85,6 @@ class Player(Entity.Entity):
 			self.pos = (mousePos[0]/Globals.SCREENMULTIPLIER,
 					mousePos[1]/Globals.SCREENMULTIPLIER)
 
-		print self.hurtTimer
 		if(self.hurtTimer > 0): self.hurtTimer -= 1
 	
 	def getCollisions(self, level):

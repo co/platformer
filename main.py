@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 import pygame, sys, Player, HitHexagon, Level, Globals, Tileset, SpriteSheet
-import Camera, Bar, PowerUp, Game, Enemy
+import Camera, Bar, PowerUp, Game, BlackGhost, Mamal
 
 pygame.init()
 pygame.display.set_caption('LOL ITS A GAEM')
@@ -11,7 +11,7 @@ def loadLevelOne():
 	while True:
 		tileset = Tileset.Tileset("tileset")
 		level = Level.Level(tileset)
-		level.loadFile("world1.map")
+		level.loadFile("world1b.map")
 
 #Player
 		spriteSheet = SpriteSheet.SpriteSheet("spriteSheet1.png")
@@ -27,8 +27,13 @@ def loadLevelOne():
 		game.guiFeatures.append(player.HPbar)
 
 		ghostSS = SpriteSheet.SpriteSheet("blackGhost.png")
-		blackGhost = Enemy.Enemy(ghostSS, game)
+		blackGhost = BlackGhost.BlackGhost(ghostSS, game)
 		blackGhost.pos = (5,5)
+		
+		mamalSS = SpriteSheet.SpriteSheet("mamal.png")
+		mamal = Mamal.Mamal(mamalSS, game)
+		mamal.pos = (80,32)
+		game.entities.append(mamal)
 		game.entities.append(blackGhost)
 
 #PowerUps
@@ -37,4 +42,5 @@ def loadLevelOne():
 
 		game.start()
 
+#profile.run('loadLevelOne()')
 loadLevelOne()

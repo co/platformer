@@ -16,28 +16,6 @@ class Game( object ):
 		self.guiFeatures = []
 		self.hurtBoxHandler = HurtBoxHandler.HurtBoxHandler()
 
-	def reactToCollision(self, sprite, collisions):
-		if(collisions[HitHexagon.LEFT] and collisions[HitHexagon.RIGHT]):
-			print "You got crushed by walls"
-		if(collisions[HitHexagon.TOP] and collisions[HitHexagon.BOTTOM]):
-			print "You got crushed by walls"
-		
-		if(collisions[HitHexagon.LEFT]):
-			sprite.velocity = (0,sprite.velocity[1])
-			sprite.addPos((0.5,0))
-
-		if(collisions[HitHexagon.RIGHT]):
-			sprite.velocity = (0,sprite.velocity[1])
-			sprite.addPos((-0.5,0))
-
-		if(collisions[HitHexagon.TOP]):
-			sprite.velocity = (sprite.velocity[0],0)
-			sprite.addPos((0,0.1))
-
-		if(collisions[HitHexagon.BOTTOM]):
-			sprite.velocity = (sprite.velocity[0],0)
-			sprite.addPos((0,-0.1))
-
 # draw on the surface object
 
 	def act(self):
@@ -50,7 +28,7 @@ class Game( object ):
 				#out of walls
 				collisions = entity.getCollisions(self.level)
 				if(any(collisions)):
-					self.reactToCollision(entity, collisions)
+					entity.reactToCollision(collisions)
 				else:
 					break
 
@@ -70,7 +48,7 @@ class Game( object ):
 		levelCanvas = pygame.Surface((1000, 1000))
 		levelCanvas.fill(Globals.SKY)
 
-		self.level.draw(levelCanvas)
+		self.level.draw(levelCanvas, self.player.pos)
 
 
 		for entity in self.entities:
